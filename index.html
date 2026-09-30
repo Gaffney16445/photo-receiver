@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写真受信センター</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: linear-gradient(135deg, #171329, #35205f);
+  color: white;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+.card {
+  background: white;
+  color: #222;
+  border-radius: 24px;
+  padding: 25px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: #6d28d9;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.linkBox {
+  background: #f3f4f6;
+  padding: 12px;
+  border-radius: 10px;
+  word-break: break-all;
+  margin-top: 15px;
+}
+
+.photo {
+  width: 100%;
+  border-radius: 15px;
+  margin-top: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+.small {
+  color: #666;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card" id="manager">
+
+    <h1>📷 写真受信センター</h1>
+
+    <p>
+      専用リンクを作成して、そのリンクから送られた写真を受け取れます。
+    </p>
+
+    <button id="createLink">
+      🔗 リンクを作成
+    </button>
+
+    <div id="createdArea" class="hidden">
+
+      <p>あなたの専用リンク：</p>
+
+      <div class="linkBox" id="linkText"></div>
+
+      <button id="copyLink">
+        📋 リンクをコピー
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>📥 受信した写真</h2>
+
+    <p class="small">
+      専用リンクから送信された写真がここに表示されます。
+    </p>
+
+    <button id="refresh">
+      🔄 写真を確認
+    </button>
+
+    <div id="photos"></div>
+
+  </div>
+
+
+  <div class="card hidden" id="sender">
+
+    <h1>📸 写真送信</h1>
+
+    <p>
+      このリンクは写真送信用です。
+    </p>
+
+    <input
+      type="file"
+      id="photoInput"
+      accept="image/*"
+      capture="user"
+      style="width:100%;margin-top:15px;"
+    >
+
+    <button id="sendPhoto">
+      📤 写真を送信
+    </button>
+
+    <p id="status"></p>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_FUNCTION =
+"https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/smooth-worker";
+
+const params =
+new URLSearchParams(location.search);
+
+let room =
+params.get("room");
+
+function makeRoomId() {
+
+  const chars =
+  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
+  let result = "";
+
+  for (let i = 0; i < 12; i++) {
+    result +=
+      chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return result;
+}
+
+
+// ============================
+// 管理画面
+// ============================
+
+const manager =
+document.getElementById("manager");
+
+const sender =
+document.getElementById("sender");
+
+
+// URLにroomがある場合
+if (room) {
+
+  manager.classList.add("hidden");
+  sender.classList.remove("hidden");
+
+}
+
+
+// ============================
+// リンク作成
+// ============================
+
+document
+.getElementById("createLink")
+.addEventListener("click", () => {
+
+  room = makeRoomId();
+
+  const link =
+    location.origin +
+    location.pathname +
+    "?room=" +
+    room;
+
+  document
+    .getElementById("createdArea")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("linkText")
+    .textContent = link;
+
+});
+
+
+// ============================
+// リンクコピー
+// ============================
+
+document
+.getElementById("copyLink")
+.addEventListener("click", async () => {
+
+  const link =
+    document
+      .getElementById("linkText")
+      .textContent;
+
+  try {
+
+    await navigator.clipboard.writeText(link);
+
+    alert("リンクをコピーしました！");
+
+  } catch {
+
+    alert("コピーできませんでした。リンクを長押ししてコピーしてください。");
+
+  }
+
+});
+
+
+// ============================
+// 写真送信
+// ============================
+
+document
+.getElementById("sendPhoto")
+.addEventListener("click", async () => {
+
+  const input =
+    document.getElementById("photoInput");
+
+  const status =
+    document.getElementById("status");
+
+  if (!input.files.length) {
+
+    alert("写真を選択してください。");
+
+    return;
+
+  }
+
+  const file =
+    input.files[0];
+
+  status.textContent =
+    "写真を送信しています…";
+
+  try {
+
+    const response =
+      await fetch(
+        SUPABASE_FUNCTION +
+        "?room=" +
+        encodeURIComponent(room),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              file.type
+          },
+          body: file
+        }
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        await response.text()
+      );
+
+    }
+
+    status.textContent =
+      "✅ 写真を送信しました！";
+
+    input.value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "❌ 写真の送信に失敗しました。";
+
+  }
+
+});
+
+
+// ============================
+// 写真確認
+// ============================
+
+document
+.getElementById("refresh")
+.addEventListener("click", async () => {
+
+  if (!room) {
+
+    alert(
+      "まずリンクを作成してください。"
+    );
+
+    return;
+
+  }
+
+  const photos =
+    document.getElementById("photos");
+
+  photos.innerHTML =
+    "読み込み中…";
+
+  try {
+
+    const response =
+      await fetch(
+        SUPABASE_FUNCTION +
+        "?room=" +
+        encodeURIComponent(room)
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !data.success ||
+      !data.photos.length
+    ) {
+
+      photos.innerHTML =
+        "<p>まだ写真は届いていません。</p>";
+
+      return;
+
+    }
+
+    photos.innerHTML = "";
+
+    data.photos.forEach(photo => {
+
+      const img =
+        document.createElement("img");
+
+      img.src = photo.url;
+      img.className = "photo";
+
+      photos.appendChild(img);
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    photos.innerHTML =
+      "<p>写真を取得できませんでした。</p>";
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
