@@ -99,7 +99,6 @@ button {
 
   </div>
 
-
   <div class="card">
 
     <h2>📥 受信した写真</h2>
@@ -115,7 +114,6 @@ button {
     <div id="photos"></div>
 
   </div>
-
 
   <div class="card hidden" id="sender">
 
@@ -143,11 +141,11 @@ button {
 
 </div>
 
-
 <script>
 
+// ★今回作った新しいFunction
 const SUPABASE_FUNCTION =
-"https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/smooth-worker";
+"https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
 
 const params =
 new URLSearchParams(location.search);
@@ -182,7 +180,7 @@ const sender =
 document.getElementById("sender");
 
 
-// URLにroomがある場合
+// room付きURLなら送信画面
 if (room) {
 
   manager.classList.add("hidden");
@@ -239,7 +237,9 @@ document
 
   } catch {
 
-    alert("コピーできませんでした。リンクを長押ししてコピーしてください。");
+    alert(
+      "コピーできませんでした。リンクを長押ししてコピーしてください。"
+    );
 
   }
 
@@ -327,7 +327,7 @@ document
   if (!room) {
 
     alert(
-      "まずリンクを作成してください。"
+      "まず専用リンクを作成してください。"
     );
 
     return;
@@ -354,6 +354,7 @@ document
 
     if (
       !data.success ||
+      !data.photos ||
       !data.photos.length
     ) {
 
@@ -372,7 +373,10 @@ document
         document.createElement("img");
 
       img.src = photo.url;
+
       img.className = "photo";
+
+      img.alt = "受信した写真";
 
       photos.appendChild(img);
 
