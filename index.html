@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -125,6 +125,10 @@ button:disabled {
 
 .openButton {
   background: #16a34a;
+}
+
+.newRoomButton {
+  background: #7c3aed;
 }
 
 .managementBox {
@@ -276,7 +280,7 @@ hr {
 >
 
 <h2>
-🔗 ルーム情報
+🔗 現在のルーム
 </h2>
 
 
@@ -376,6 +380,19 @@ AI顔診断リンク
 </div>
 
 </div>
+
+
+<!-- =========================
+     新しいルーム作成
+========================= -->
+
+<button
+  id="newRoomButton"
+  class="newRoomButton"
+  type="button"
+>
+➕ 新しいルームを作成
+</button>
 
 
 <div
@@ -494,6 +511,11 @@ document.getElementById(
 const createRoomButton =
 document.getElementById(
   "createRoomButton"
+);
+
+const newRoomButton =
+document.getElementById(
+  "newRoomButton"
 );
 
 const roomInfo =
@@ -655,10 +677,6 @@ async function copyText(
 
   } catch (error) {
 
-    /*
-      Clipboard APIが使えない場合
-    */
-
     window.prompt(
       "下のリンクをコピーしてください。",
       text
@@ -725,17 +743,25 @@ function displayRoom() {
   }
 
 
+  /*
+    ルーム情報を表示
+  */
+
   roomInfo.style.display =
     "block";
 
 
+  /*
+    作成エリアも表示したままにする
+    → 何回でも新しいルームを作れる
+  */
+
   createArea.style.display =
-    "none";
+    "block";
 
 
   /*
-    重要：
-    roomとtokenをURLに残す
+    URLに現在のルーム情報を保存
   */
 
   if (
@@ -761,93 +787,139 @@ function displayRoom() {
    ルーム作成
 ========================= */
 
-createRoomButton.addEventListener(
-  "click",
-  async () => {
+async function createRoom() {
 
-    createRoomButton.disabled =
-      true;
+  /*
+    ボタンを一時的に無効化
+  */
 
-    createRoomButton.textContent =
-      "ルーム作成中…";
+  createRoomButton.disabled =
+    true;
 
+  newRoomButton.disabled =
+    true;
 
-    try {
-
-      const response =
-        await fetch(
-          API +
-          "?action=create-room",
-          {
-            method: "POST"
-          }
-        );
+  createRoomButton.textContent =
+    "ルーム作成中…";
 
 
-      const data =
-        await response.json();
+  newRoomButton.textContent =
+    "ルーム作成中…";
 
 
-      if (!response.ok) {
+  try {
 
-        throw new Error(
-          data.error ||
-          "ルーム作成に失敗しました。"
-        );
-
-      }
-
-
-      /*
-        APIから取得
-      */
-
-      room =
-        data.room;
-
-      ownerToken =
-        data.owner_token;
-
-
-      /*
-        画面に表示
-      */
-
-      displayRoom();
-
-
-      showMessage(
-        "ルームを作成しました。"
+    const response =
+      await fetch(
+        API +
+        "?action=create-room",
+        {
+          method: "POST"
+        }
       );
 
 
-      /*
-        写真一覧
-      */
-
-      await loadPhotos();
+    const data =
+      await response.json();
 
 
-    } catch (error) {
+    if (!response.ok) {
 
-      console.error(
-        error
+      throw new Error(
+        data.error ||
+        "ルーム作成に失敗しました。"
       );
-
-
-      alert(
-        "ルーム作成に失敗しました。\n\n" +
-        error.message
-      );
-
-
-      createRoomButton.disabled =
-        false;
-
-      createRoomButton.textContent =
-        "ルームを作成する";
 
     }
+
+
+    /*
+      APIから新しいルームを取得
+    */
+
+    room =
+      data.room;
+
+    ownerToken =
+      data.owner_token;
+
+
+    /*
+      新しいルームを表示
+    */
+
+    displayRoom();
+
+
+    showMessage(
+      "新しいルームを作成しました。\n" +
+      "ルームID：" +
+      room
+    );
+
+
+    /*
+      新しいルームの写真を読み込む
+    */
+
+    await loadPhotos();
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    alert(
+      "ルーム作成に失敗しました。\n\n" +
+      error.message
+    );
+
+  } finally {
+
+    /*
+      作成が終わったら
+      必ずボタンを再び押せるようにする
+    */
+
+    createRoomButton.disabled =
+      false;
+
+    newRoomButton.disabled =
+      false;
+
+    createRoomButton.textContent =
+      "➕ 新しいルームを作成";
+
+    newRoomButton.textContent =
+      "➕ 新しいルームを作成";
+
+  }
+
+}
+
+
+/* =========================
+   作成ボタン
+========================= */
+
+createRoomButton.addEventListener(
+  "click",
+  () => {
+
+    createRoom();
+
+  }
+);
+
+
+newRoomButton.addEventListener(
+  "click",
+  () => {
+
+    createRoom();
 
   }
 );
@@ -1515,4 +1587,4 @@ initialize();
 
 </body>
 </html>
-
+```
